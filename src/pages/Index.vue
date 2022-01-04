@@ -1,6 +1,12 @@
 <template>
-  <q-page class="flex flex-center">
-    <div class="q-pa-md row items q-gutter-md">
+  <q-page dark class="flex flex-center">
+    <div class="q-pa-lg q-gutter-lg">
+      <div class="row">
+        <div class="col-xs-4 offset-xs-4">
+          <q-img style="max-width: 20vw" src="logo.png"></q-img>
+        </div>
+      </div>
+
       <q-card class="bg-black text-white">
         <q-card-section>
           <div class="text-h6">Footswitch</div>
@@ -8,7 +14,8 @@
         </q-card-section>
 
         <q-card-section>
-          {{ lorem }}
+          Check what midi device is the proper one for you. Check console logs
+          for input checks.
         </q-card-section>
 
         <q-select
@@ -21,7 +28,7 @@
           emit-value
           option-value="id"
           option-label="name"
-          color="lime-11"
+          color="light-blue-12"
           map-options
           dark
         >
@@ -36,25 +43,25 @@
       </q-card>
       <q-card class="bg-black text-white">
         <q-card-section>
-          <div class="text-h6">Device</div>
-          <div class="text-subtitle2">Select your receiver device</div>
+          <div class="text-h6">Amp</div>
+          <div class="text-subtitle2">Select your amp device</div>
         </q-card-section>
 
         <q-card-section>
-          {{ lorem }}
+          Choose KATANA for controlling your amp.
         </q-card-section>
 
         <q-select
           ref="receiverRef"
           v-model="receiver"
           :options="receiverOptions"
-          label="Receiver"
+          label="Amp"
           filled
           text-white
           emit-value
-          option-value="id"
+          option-value="name"
           option-label="name"
-          color="lime-11"
+          color="pink-12"
           map-options
           dark
         >
@@ -73,6 +80,7 @@
 
 <script>
 import { defineComponent, ref } from "vue";
+import { WebMidi } from "webmidi";
 
 export default defineComponent({
   name: "KatanaFooter",
@@ -87,21 +95,10 @@ export default defineComponent({
       enabled: ref(false),
       footswitchOptions: ref([]),
       receiverOptions: ref([]),
-      parseMessage(msg) {
-        if (msg && msg.data) {
-          return {
-            channel: msg.data[0],
-            command: msg.data[1],
-            value: msg.data[2],
-          };
-        }
-      },
-      sendMessage(msg) {
-        console.log(this.parseMessage(msg));
-      },
     };
   },
   beforeMount() {
+    WebMidi.enable({ sysex: true });
     if (navigator.requestMIDIAccess) {
       navigator.requestMIDIAccess({ sysex: true }).then(
         (access) => {
@@ -123,8 +120,34 @@ export default defineComponent({
     } else {
       new Error("No MIDI access in this browser");
     }
+  },
+  methods: {
+    parseMessage(msg) {
+      if (msg && msg.data) {
+        return {
+          channel: msg.data[0],
+          command: msg.data[1] - 1,
+          value: msg.data[2],
+        };
+      }
+    },
+    sendMessage(msg) {
+      let parsed_msg = this.parseMessage(msg);
+      let typeOf = parsed_msg.command >= 39 ? "PC" : "CC";
 
-    this.$watch("footswitch", (newVal, oldVal) => {
+      if (typeOf == "PC") {
+        this.midiReceiver.sendProgramChange(parsed_msg.command);
+      } else {
+        this.midiReceiver.sendControlChange(
+          parsed_msg.command,
+          parsed_msg.value
+        );
+      }
+      console.log(parsed_msg);
+    },
+  },
+  watch: {
+    footswitch(newVal, oldVal) {
       console.log("New: " + newVal + " old: " + oldVal);
       this.midiFootswitch = this.footswitchOptions.find(
         (item) => item.id == newVal
@@ -135,7 +158,20 @@ export default defineComponent({
         console.log(msg);
         this.sendMessage(msg);
       };
-    });
+    },
+    receiver(newVal, oldVal) {
+      console.log("New: " + newVal + " old: " + oldVal);
+      this.midiReceiver = WebMidi.getOutputByName(newVal);
+
+      // let test = "F0 41 00 00 00 00 33 11 60 00 00 10 00 00 00 02 0E F7";
+
+      // console.log(
+      //   sender.send([
+      //     0xf0, 0x41, 0x00, 0x00, 0x00, 0x00, 0x33, 0x12, 0x60, 0x00, 0x00,
+      //     0x10, 0x00, 0x00, 0x00, 0x02, 0x0e, 0xf7,
+      //   ])
+      // );
+    },
   },
 });
 </script>
