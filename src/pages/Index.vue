@@ -150,7 +150,7 @@ export default defineComponent({
     clearLeds(actual) {
       CHANNELS.forEach((input) => {
         if (input != actual) {
-          this.footswitchOutput.sendControlChange(input, 0);
+          // this.footswitchOutput.sendControlChange(input, 0);
         }
       });
       console.log("CLEAR LEDS ON FOOTSWITCH");
