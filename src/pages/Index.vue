@@ -141,7 +141,7 @@ export default defineComponent({
 
       if (typeOf == "PC") {
         this.midiReceiver.sendProgramChange(command);
-        this.clearLeds(parsed_msg.command);
+        // this.clearLeds(parsed_msg.command);
       } else {
         this.midiReceiver.sendControlChange(command, parsed_msg.value);
       }
@@ -169,11 +169,9 @@ export default defineComponent({
       console.log("FootSwitch Output");
       console.log(this.footswitchOutput);
       this.midiFootswitch.onmidimessage = (msg) => {
-        if (msg.currentTarget.type == "input") {
-          console.log("Message Received from " + newVal);
-          console.log(msg);
-          this.sendMessage(msg);
-        }
+        console.log("Message Received from " + newVal);
+        console.log(msg);
+        this.sendMessage(msg);
       };
     },
     receiver(newVal, oldVal) {
