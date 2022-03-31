@@ -136,7 +136,7 @@ export default defineComponent({
       let typeOf = parsed_msg.command >= 39 ? "PC" : "CC";
 
       if (typeOf == "PC") {
-        this.midiReceiver.sendProgramChange(parsed_msg.command);
+        this.midiReceiver.sendProgramChange(parsed_msg.command + 1);
       } else {
         this.midiReceiver.sendControlChange(
           parsed_msg.command,
