@@ -149,7 +149,7 @@ export default defineComponent({
     clearLeds(actual) {
       CHANNELS.forEach((input) => {
         if (input != actual) {
-          this.midiReceiver.sendControlChange(input, 0);
+          this.midiFootswitch.sendControlChange(input, 0);
         }
       });
       console.log("CLEAR LEDS ON FOOTSWITCH");
