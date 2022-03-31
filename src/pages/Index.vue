@@ -135,14 +135,13 @@ export default defineComponent({
     },
     sendMessage(msg) {
       let parsed_msg = this.parseMessage(msg);
-      let command = parsed_msg.command;
+      let command = parsed_msg.command - 1;
       let typeOf = command >= 39 ? "PC" : "CC";
 
       if (typeOf == "PC") {
         this.midiReceiver.sendProgramChange(command);
         this.clearLeds(parsed_msg.command);
       } else {
-        command = command - 1;
         this.midiReceiver.sendControlChange(command, parsed_msg.value);
       }
       console.log("SENT MESSAGE TO KATANA:" + command + " " + parsed_msg.value);
