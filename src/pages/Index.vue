@@ -144,7 +144,7 @@ export default defineComponent({
         command = command - 1;
         this.midiReceiver.sendControlChange(command, parsed_msg.value);
       }
-      clearLeds(parsed_msg.command);
+      this.clearLeds(parsed_msg.command);
       console.log("SENT MESSAGE TO KATANA:" + command + " " + parsed_msg.value);
     },
     clearLeds(actual) {
