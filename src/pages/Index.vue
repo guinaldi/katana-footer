@@ -82,6 +82,8 @@
 import { defineComponent, ref } from "vue";
 import { WebMidi } from "webmidi";
 
+const CHANNELS = [15, 16, 17, 18, 19, 40, 50, 51, 52, 53];
+
 export default defineComponent({
   name: "KatanaFooter",
   setup() {
@@ -133,18 +135,25 @@ export default defineComponent({
     },
     sendMessage(msg) {
       let parsed_msg = this.parseMessage(msg);
-      let typeOf = parsed_msg.command >= 39 ? "PC" : "CC";
+      let command = parsed_msg.command;
+      let typeOf = command >= 39 ? "PC" : "CC";
 
       if (typeOf == "PC") {
-        this.midiReceiver.sendProgramChange(parsed_msg.command);
+        this.midiReceiver.sendProgramChange(command);
       } else {
-        parsed_msg.command = parsed_msg.command - 1;
-        this.midiReceiver.sendControlChange(
-          parsed_msg.command,
-          parsed_msg.value
-        );
+        command = command - 1;
+        this.midiReceiver.sendControlChange(command, parsed_msg.value);
       }
-      console.log(parsed_msg);
+      clearLeds(parsed_msg.command);
+      console.log("SENT MESSAGE TO KATANA:" + command + " " + parsed_msg.value);
+    },
+    clearLeds(actual) {
+      CHANNELS.forEach((input) => {
+        if (input != actual) {
+          this.midiReceiver.sendControlChange(input, 0);
+        }
+      });
+      console.log("CLEAR LEDS ON FOOTSWITCH");
     },
   },
   watch: {
