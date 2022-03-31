@@ -91,6 +91,7 @@ export default defineComponent({
       lorem:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
       footswitch: ref(null),
+      footswitchOutput: ref(null),
       midiFootswitch: ref(null),
       receiver: ref(null),
       midiReceiver: ref(null),
@@ -149,7 +150,7 @@ export default defineComponent({
     clearLeds(actual) {
       CHANNELS.forEach((input) => {
         if (input != actual) {
-          this.midiFootswitch.sendControlChange(input, 0);
+          this.footswitchOutput.sendControlChange(input, 0);
         }
       });
       console.log("CLEAR LEDS ON FOOTSWITCH");
@@ -161,7 +162,12 @@ export default defineComponent({
       this.midiFootswitch = this.footswitchOptions.find(
         (item) => item.id == newVal
       );
+
+      this.footswitchOutput = WebMidi.getOutputByName(this.midiFootswitch.name);
+      console.log("FootSwitch Input");
       console.log(this.midiFootswitch);
+      console.log("FootSwitch Output");
+      console.log(this.footswitchOutput);
       this.midiFootswitch.onmidimessage = (msg) => {
         console.log("Message Received from " + newVal);
         console.log(msg);
