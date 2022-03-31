@@ -126,7 +126,7 @@ export default defineComponent({
       if (msg && msg.data) {
         return {
           channel: msg.data[0],
-          command: msg.data[1] - 1,
+          command: msg.data[1],
           value: msg.data[2],
         };
       }
@@ -136,8 +136,9 @@ export default defineComponent({
       let typeOf = parsed_msg.command >= 39 ? "PC" : "CC";
 
       if (typeOf == "PC") {
-        this.midiReceiver.sendProgramChange(parsed_msg.command + 1);
+        this.midiReceiver.sendProgramChange(parsed_msg.command);
       } else {
+        parsed_msg.command = parsed_msg.command - 1;
         this.midiReceiver.sendControlChange(
           parsed_msg.command,
           parsed_msg.value
