@@ -150,7 +150,7 @@ export default defineComponent({
     clearLeds(actual) {
       CHANNELS.forEach((input) => {
         if (input != actual) {
-          // this.footswitchOutput.sendControlChange(input, 0);
+          this.footswitchOutput.sendControlChange(input, 0);
         }
       });
       console.log("CLEAR LEDS ON FOOTSWITCH");
@@ -169,9 +169,11 @@ export default defineComponent({
       console.log("FootSwitch Output");
       console.log(this.footswitchOutput);
       this.midiFootswitch.onmidimessage = (msg) => {
-        console.log("Message Received from " + newVal);
-        console.log(msg);
-        this.sendMessage(msg);
+        if (msg.currentTarget.type == "input") {
+          console.log("Message Received from " + newVal);
+          console.log(msg);
+          this.sendMessage(msg);
+        }
       };
     },
     receiver(newVal, oldVal) {
